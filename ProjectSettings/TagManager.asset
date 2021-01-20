@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Spikes
   layers:
   - Default
   - TransparentFX
@@ -14,7 +15,7 @@ TagManager:
   - 
   - 
   - Foreground
-  - 
+  - Spikes
   - 
   - 
   - 
@@ -43,4 +44,7 @@ TagManager:
     locked: 0
   - name: Foreground
     uniqueID: 476705567
+    locked: 0
+  - name: Spikes
+    uniqueID: 1963684193
     locked: 0

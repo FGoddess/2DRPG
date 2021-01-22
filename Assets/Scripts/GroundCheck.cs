@@ -9,14 +9,14 @@ public class GroundCheck : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (OnGroundCheck != null)
+        if (OnGroundCheck != null && collision.CompareTag("Foreground"))
             OnGroundCheck(true);
         
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (OnGroundCheck != null)
+        if (OnGroundCheck != null && collision.CompareTag("Foreground"))
             OnGroundCheck(false);
     }
 }

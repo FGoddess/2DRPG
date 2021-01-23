@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         _instance = this;
+        DontDestroyOnLoad(this.gameObject);
     }
 
     [SerializeField] private StatsBar _healthSlider;
@@ -27,6 +28,4 @@ public class GameManager : MonoBehaviour
     {
         _healthSlider.SetStats(amount);
     }
-
-
 }

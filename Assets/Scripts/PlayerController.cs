@@ -2,32 +2,49 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Components")]
     [SerializeField] private Rigidbody2D _playerRB;
     [SerializeField] private BoxCollider2D _groundCheck;
     [SerializeField] private Animator _playerAnim;
-
+    [SerializeField] private Transform _attackPoint;
+    
+    [Header("Movement")]
     [SerializeField] private float _moveSpeed;
     [SerializeField] private float _jumpForce;
+
+    [Header("Dash")]
+    [SerializeField] private float _nextDashTime;
+    [SerializeField] private float _dashForce;
+    [SerializeField] private float _startDashTimer;
+    [SerializeField] private float _currentDashTimer;
+
+    [Header("Booleans")]
     [SerializeField] private bool _isOnGround;
     [SerializeField] private bool _isAttacking = false;
-
-    [SerializeField] private Transform _attackPoint;
-    [SerializeField] private float _attackRadius;
-    [SerializeField] private LayerMask _enemyLayers;
-
-    [SerializeField] private int _damage;
-
-    [SerializeField] private float _attackRate;
-    [SerializeField] private float _nextAttackTime;
-
-    [SerializeField] private int _currentHealth;
-    [SerializeField] private int _maxHealth;
+    [SerializeField] private bool _isDashing = false;
     [SerializeField] private bool _isDead;
 
+    [Header("Attacking")]
+    [SerializeField] private int _damage;
+    [SerializeField] private float _attackRadius;
+    [SerializeField] private float _attackRate;
+    [SerializeField] private float _nextAttackTime;
+    [SerializeField] private LayerMask _enemyLayers;
+
+    [Header("Health")]
+    [SerializeField] private int _currentHealth;
+    [SerializeField] private int _maxHealth;
+
     public static Action<int> OnEnemyHit;
+
+    private void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
 
     void Start()
     {
@@ -38,26 +55,67 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         var horizontalInput = Input.GetAxis("Horizontal");
-        if(!_isAttacking)
+
+        if (!_isAttacking)
             Movement(horizontalInput);
         Jump();
-        Attack();
+        if(!_isDashing)
+            Attack();
 
-        //ПЕРЕДЕЛАТЬ
-        if(_currentHealth <= 0)
+        //TODO: DEATH
+        if (_currentHealth <= 0)
         {
             _playerAnim.SetBool("IsDead", true);
-            
+
             _isDead = true;
         }
 
-        if(Input.GetKeyDown(KeyCode.E))
+        //HURT TEST
+        /*if (Input.GetKeyDown(KeyCode.E))
         {
             _currentHealth -= 10;
             _playerAnim.SetTrigger("Hurt");
             GameManager.Instance.SetSliderValue(_currentHealth);
+        }*/
+
+        //to gamemanager or scenemanager
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            transform.position = Vector3.zero;
         }
 
+        //dash test
+        Dash(horizontalInput);
+    }
+
+    private void Dash(float horizontalInput)
+    {
+        if (Input.GetKeyDown(KeyCode.X) && !_isDashing && horizontalInput != 0)
+        {
+            _isDashing = true;
+            _currentDashTimer = _startDashTimer;
+            _playerRB.velocity = Vector2.zero;
+        }
+
+        if(_isDashing)
+        {
+            if (horizontalInput > 0)
+            {
+                _playerRB.velocity = Vector2.right * _dashForce;
+            }
+            else
+            {
+                _playerRB.velocity = Vector2.left * _dashForce;
+            }
+
+            _currentDashTimer -= Time.deltaTime;
+
+            if (_currentDashTimer <= 0)
+            {
+                _isDashing = false;
+            }
+        }
     }
 
     private void Attack()
@@ -65,7 +123,7 @@ public class PlayerController : MonoBehaviour
         if(Input.GetMouseButtonDown(0) && Time.time >= _nextAttackTime)
         {
             _playerRB.velocity = Vector2.zero;
-            StartCoroutine("AttackDelay");
+            StartCoroutine(AttackDelay());
             _playerAnim.SetTrigger("Attack");
 
             Collider2D[] hits = Physics2D.OverlapCircleAll(_attackPoint.position, _attackRadius, _enemyLayers);
@@ -77,18 +135,15 @@ public class PlayerController : MonoBehaviour
             }
 
             _nextAttackTime = Time.time + 1f / _attackRate;
-            Debug.Log(_nextAttackTime);
         }
     }
 
     private IEnumerator AttackDelay()
     {
         _isAttacking = true;
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.8f); //animation time
         _isAttacking = false;
     }
-
-
     private void Movement(float horizontalInput)
     {
         _playerRB.velocity = new Vector2(horizontalInput * _moveSpeed, _playerRB.velocity.y);

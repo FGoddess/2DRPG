@@ -4,20 +4,16 @@ using UnityEngine;
 
 public class NPC : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] private string[] _npcsDialogs;
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log("da");
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            if (Input.GetKeyDown(KeyCode.E) && !DialogManager.Inctance.DialogBox.activeInHierarchy)
+            {
+                DialogManager.Inctance.StartDialog(_npcsDialogs);
+            }
+        }
     }
 }

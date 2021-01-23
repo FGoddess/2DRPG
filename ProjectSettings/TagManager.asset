@@ -18,7 +18,7 @@ TagManager:
   - 
   - Foreground
   - Enemy
-  - 
+  - CamConfiner
   - 
   - 
   - 
@@ -61,4 +61,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 2160034395
+    locked: 0
+  - name: UI
+    uniqueID: 1422734541
     locked: 0

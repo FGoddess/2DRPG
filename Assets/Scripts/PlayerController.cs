@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.K))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-            transform.position = Vector3.zero;
+            transform.position = new Vector3(-7,-3, transform.position.z);
         }
 
         //dash test

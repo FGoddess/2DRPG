@@ -58,35 +58,32 @@ public class PlayerController : MonoBehaviour
 
         if (!_isAttacking)
             Movement(horizontalInput);
-        Jump();
-        if(!_isDashing)
+        if (!_isDashing)
             Attack();
+        Jump();
+        Dash(horizontalInput);
+    }
 
-        //TODO: DEATH
+    private void TakeDamage(int damage)
+    {
+        _currentHealth -= 10;
+        _playerAnim.SetTrigger("Hurt");
+        GameManager.Instance.SetSliderValue(_currentHealth);
+
         if (_currentHealth <= 0)
         {
-            _playerAnim.SetBool("IsDead", true);
-
-            _isDead = true;
+            Death();
         }
+    }
 
-        //HURT TEST
-        /*if (Input.GetKeyDown(KeyCode.E))
-        {
-            _currentHealth -= 10;
-            _playerAnim.SetTrigger("Hurt");
-            GameManager.Instance.SetSliderValue(_currentHealth);
-        }*/
+    private void Death()
+    {
+        _playerAnim.SetBool("IsDead", true);
 
-        //to gamemanager or scenemanager
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-            transform.position = new Vector3(-7,-3, transform.position.z);
-        }
+        SceneManager.LoadScene(0);
 
-        //dash test
-        Dash(horizontalInput);
+        transform.position = new Vector3(-5,-3,0);
+        _currentHealth = _maxHealth;
     }
 
     private void Dash(float horizontalInput)
@@ -170,11 +167,13 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         GroundCheck.OnGroundCheck += SetGround;
+        Enemy.OnPlayerHit += TakeDamage;
     }
 
     private void OnDisable()
     {
         GroundCheck.OnGroundCheck -= SetGround;
+        Enemy.OnPlayerHit -= TakeDamage;
     }
 
     private void SetGround(bool temp)
